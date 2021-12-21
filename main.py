@@ -1,12 +1,71 @@
 import pygame
+import os
+import sys
+
+all_sprites = pygame.sprite.Group()
 
 
-class Player:
-    pass
+def load_image(name, w, h, colorkey=None):
+    fullname = os.path.join('data', name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+
+    if colorkey is not None:
+        image = image.convert()
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        try:
+            image = image.convert_alpha()
+        except Exception:
+            pass
+    image = pygame.transform.scale(image, (w, h))
+    return image
 
 
-class Block:
-    pass
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
+class Block(pygame.sprite.Sprite):
+    image_of_NotBreak = load_image("ntbreak_blok.png", 20, 20)
+
+    def __init__(self, coords, type):
+        super().__init__(all_sprites)
+        self.t = ["break", "NotBreak"]
+        self.type = type
+
+        self.x, self.y = coords
+        if self.t[self.type] == "NotBreak":
+            self.image = Block.image_of_NotBreak
+        else:
+            pass
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def update(self):
+        pass
+
+
+class Grass(pygame.sprite.Sprite):
+    image_of_grass = load_image("grass.jpg", 25, 25)
+
+    def __init__(self, x, y):
+        super().__init__(all_sprites)
+        self.image = Grass.image_of_grass
+        self.rect = self.image.get_rect()
+        self.x, self.y = x, y
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self):
+        pass
 
 
 class Board:
@@ -20,8 +79,8 @@ class Board:
             for j in range(25):
                 if i == 0 or i == 24 or j == 0 or j == 24:
                     self.board[i][j] = 1
-        for i in range(25):
-            print(self.board[i])
+        # for i in range(25):
+        # print(self.board[i])
         # значения по умолчанию
         self.left = 0
         self.top = 0
@@ -38,34 +97,23 @@ class Board:
             for h in range(self.height):
                 x = self.left + w * self.cell_size
                 y = self.top + h * self.cell_size
+                if self.board[h][w] == 0:
+                    Grass(w * 20, h * 20)
                 if self.board[h][w] == 1:
-                    pygame.draw.rect(screen, "green", (x, y, self.cell_size, self.cell_size), 0)
+                    Block((w * 20, h * 20), 1)
 
                 pygame.draw.rect(screen, "white", (x, y, self.cell_size, self.cell_size), 1)
-
-    def get_cell(self, pos):
-        column = (pos[0] - self.left) // self.cell_size
-        row = (pos[1] - self.top) // self.cell_size
-        if row < 0 or row > self.height:
-            return None
-        elif column < 0 or column > self.width:
-            return None
-        return row, column
-
-    def on_click(self, cell_coords):
-        pass
-
-    def get_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        self.on_click(cell)
-        print(cell)
 
 
 pygame.display.set_caption('Танчики')
 screen = pygame.display.set_mode((500, 500))
 playground = Board(25, 25)
-fps = 30  # количество кадров в секунду
+
+fps = 30 # количество кадров в секунду
 clock = pygame.time.Clock()
+# for i in range(25):
+# for j in range(25):
+# Grass(i * 20, j * 20)
 running = True
 while running:
     for event in pygame.event.get():
@@ -73,9 +121,12 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             # player1
-            if event.key == pygame.K_W: # Обработка клавици "w"
+            if event.key == pygame.K_w: # Обработка клавици "w"
                 pass
+
     screen.fill((0, 0, 0))
+    all_sprites.draw(screen)
+    all_sprites.update()
     playground.render(screen)
     pygame.display.flip()
     clock.tick(fps)
