@@ -6,6 +6,8 @@ from data.level import level
 all_sprites = pygame.sprite.Group()
 cell_size = 20
 blocks_not_breaking = pygame.sprite.Group()
+bullets_of_player1 = pygame.sprite.Group()
+bullets_of_player2 = pygame.sprite.Group()
 
 
 def load_image(name, w, h, colorkey=None):
@@ -75,8 +77,10 @@ class Grass(pygame.sprite.Sprite):
     def update(self, *args):
         pass
 
+
 class Base(pygame.sprite.Sprite):
     image_of_base = [load_image("base1.png", cell_size, cell_size), load_image("base2.png", cell_size, cell_size)]
+
     def __init__(self, x, y, player):
         super().__init__(all_sprites)
         self.image = Base.image_of_base[player - 1]
@@ -85,21 +89,13 @@ class Base(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+
 class Board:
     # создание поля
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.board = level.copy()
-        # self.board = [[0] * width for _ in range(height)]
-        #
-        # for i in range(25):
-        #     for j in range(25):
-        #         if i == 0 or i == 24 or j == 0 or j == 24:
-        #             self.board[i][j] = 1
-        # for i in range(25):
-        # print(self.board[i])
-        # значения по умолчанию
         self.left = 0
         self.top = 0
         self.cell_size = cell_size
@@ -130,8 +126,53 @@ class Board:
         pass
 
 
+class Bullet(pygame.sprite.Sprite):
+    image_of_bullet = load_image("bullet.png", 20, 20)
+
+    def __init__(self, x, y, vx, vy, player):
+        super().__init__(all_sprites)
+        self.image = Bullet.image_of_bullet
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = x, y
+        self.x, self.y = x, y
+        self.vx = vx
+        self.vy = vy
+        self.mask = pygame.mask.from_surface(self.image)
+        self.player = player
+        if player == 1:
+            bullets_of_player1.add(self)
+        if player == 2:
+            bullets_of_player2.add(self)
+
+    def update(self, *args):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
+        if pygame.sprite.collide_mask(self, tank1) and self.player == 2:
+            tank1.hp -= 1
+            self.kill()
+        elif pygame.sprite.collide_mask(self, tank2) and self.player == 1:
+            tank2.hp -= 1
+            self.kill()
+        if self.player == 1:
+            for i in bullets_of_player2:
+                if pygame.sprite.collide_mask(self, i):
+                    self.kill()
+                    i.kill()
+                    break
+        elif self.player == 2:
+            for i in bullets_of_player1:
+                if pygame.sprite.collide_mask(self, i):
+                    self.kill()
+                    i.kill()
+                    break
+        for i in blocks_not_breaking:
+            if pygame.sprite.collide_mask(self, i):
+                self.kill()
+
+
 class Tank(pygame.sprite.Sprite):
-    image_of_tank = [load_image("tankBlue.png", cell_size, cell_size, -1), load_image("tankRed.png", cell_size, cell_size, -1)]
+    image_of_tank = [load_image("tankBlue.png", cell_size, cell_size, -1),
+                     load_image("tankRed.png", cell_size, cell_size, -1)]
 
     def __init__(self, x, y, player):
         super().__init__(all_sprites)
@@ -140,7 +181,7 @@ class Tank(pygame.sprite.Sprite):
         self.image_of_tank = Tank.image_of_tank[player]
         self.rect.x = x
         self.rect.y = y
-        hp = 3
+        self.hp = 2
         self.x, self.y = x, y
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -171,20 +212,8 @@ class Tank(pygame.sprite.Sprite):
                 self.y = ty
 
     def update(self, *args):
-        # # if pygame.KEYDOWN == args[0].type:
-        # #     print(2)
-        # #     if args[0].key == pygame.K_w:
-        # #         self.rect.y += 10
-        # if pygame.KEYDOWN == args[0].type:
-        #     if args[0].key == pygame.K_w:
-        #         self.rect.y += 10
-        # if pygame.KEYUP == args[0].type:
-        #     if args[0].key == pygame.K_w:
-        #         # self.rect.y += 10
-        #          pass
-        pass
-    # def update(self, *args):
-    #     if args[0].type ==
+        if self.hp == 0:
+            terminate()
 
 
 pygame.display.set_caption('Танчики')
@@ -194,9 +223,6 @@ base1 = Base(12 * cell_size, 1 * cell_size, 1)
 base2 = Base(12 * cell_size, (25 - 2) * cell_size, 2)
 fps = 30  # количество кадров в секунду
 clock = pygame.time.Clock()
-# for i in range(25):
-# for j in range(25):
-# Grass(i * 20, j * 20)
 running = True
 go_tank1 = False
 dx_tank1 = 0
@@ -205,9 +231,14 @@ go_tank2 = False
 dx_tank2 = 0
 dy_tank2 = 0
 tank1 = Tank(12 * cell_size, 4 * cell_size, 0)
-step = 1
-# tank2 =
+step = 1.5
+step_bullet = 3
 tank2 = Tank(12 * cell_size, (25 - 4) * cell_size, 1)
+tank1.image = pygame.transform.rotate(tank1.image_of_tank, 180)
+bullet_dx_tank1 = 0
+bullet_dy_tank1 = step
+bullet_dx_tank2 = 0
+bullet_dy_tank2 = -step
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -216,72 +247,77 @@ while running:
             # player1
             if event.key == pygame.K_w:  # Обработка клавици "w"
                 dy_tank1 = -step
-                print("w_down")
+                bullet_dy_tank1 = -step_bullet
+                bullet_dx_tank1 = 0
                 go_tank1 = True
             if event.key == pygame.K_s:  # Обработка клавици "w"
                 dy_tank1 = step
-                print("s_down")
+                bullet_dy_tank1 = step_bullet
+                bullet_dx_tank1 = 0
                 go_tank1 = True
             if event.key == pygame.K_a:  # Обработка клавици "w"
                 dx_tank1 = -step
-                print("a_down")
+                bullet_dx_tank1 = -step_bullet
+                bullet_dy_tank1 = 0
                 go_tank1 = True
             if event.key == pygame.K_d:  # Обработка клавици "w"
                 dx_tank1 = step
-                print("d_down")
+                bullet_dx_tank1 = step_bullet
+                bullet_dy_tank1 = 0
                 go_tank1 = True
+            if event.key == pygame.K_SPACE:
+                Bullet(tank1.x, tank1.y, bullet_dx_tank1, bullet_dy_tank1, 1)
 
             #   player2
             if event.key == pygame.K_UP:  # Обработка клавици "w"
                 dy_tank2 = -step
-                print("up_down")
+                bullet_dy_tank2 = -step_bullet
+                bullet_dx_tank2 = 0
                 go_tank2 = True
             if event.key == pygame.K_DOWN:  # Обработка клавици "w"
                 dy_tank2 = step
-                print("down_down")
+
+                bullet_dy_tank2 = step_bullet
+                bullet_dx_tank2 = 0
                 go_tank2 = True
             if event.key == pygame.K_LEFT:  # Обработка клавици "w"
                 dx_tank2 = -step
-                print("left_down")
+                bullet_dx_tank2 = -step_bullet
+                bullet_dy_tank2 = 0
                 go_tank2 = True
             if event.key == pygame.K_RIGHT:  # Обработка клавици "w"
                 dx_tank2 = step
-                print("right_down")
+                bullet_dx_tank2 = step_bullet
+                bullet_dy_tank2 = 0
                 go_tank2 = True
+            if event.key == pygame.K_RETURN:
+                Bullet(tank2.x, tank2.y, bullet_dx_tank2, bullet_dy_tank2, 2)
         if event.type == pygame.KEYUP:
             # player1
             if event.key == pygame.K_w:  # Обработка клавици "w"
                 dy_tank1 = 0
-                print("w_up")
                 go_tank1 = False
             if event.key == pygame.K_s:  # Обработка клавици "w"
                 dy_tank1 = 0
-                print("s_up")
                 go_tank1 = False
             if event.key == pygame.K_a:  # Обработка клавици "w"
                 dx_tank1 = 0
-                print("a_up")
                 go_tank1 = False
             if event.key == pygame.K_d:  # Обработка клавици "w"
                 dx_tank1 = 0
-                print("d_up")
                 go_tank1 = False
             #   player2
             if event.key == pygame.K_UP:  # Обработка клавици "w"
                 dy_tank2 = 0
-                print("up_up")
                 go_tank2 = True
             if event.key == pygame.K_DOWN:  # Обработка клавици "w"
                 dy_tank2 = 0
-                print("down_up")
                 go_tank2 = True
             if event.key == pygame.K_LEFT:  # Обработка клавици "w"
                 dx_tank2 = 0
-                print("left_up")
                 go_tank2 = True
             if event.key == pygame.K_RIGHT:  # Обработка клавици "w"
                 dx_tank2 = 0
-                print("right_up")
                 go_tank2 = True
     if go_tank1:
         tank1.move(tank1.x + dx_tank1, tank1.y + dy_tank1)
@@ -290,6 +326,8 @@ while running:
     screen.fill((0, 0, 0))
     all_sprites.draw(screen)
     all_sprites.update(event)
-    playground.render(screen)
     pygame.display.flip()
     clock.tick(fps)
+
+
+
