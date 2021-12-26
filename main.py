@@ -2,8 +2,6 @@ import pygame
 import os
 import sys
 
-from PyQt5 import QtMultimedia, QtCore
-
 from data.level import level
 import random
 
@@ -15,23 +13,28 @@ bullets_of_player1 = pygame.sprite.Group()
 bullets_of_player2 = pygame.sprite.Group()
 EVENT_PERESAR_TANK1 = 30
 EVENT_PERESAR_TANK2 = 60
+EVENT_SPAWN_TANK2 = 40
+EVENT_SPAWN_TANK1 = 90
+
+
 class Score:
     def __init__(self, x, y, color):
         self.x, self.y = x, y
         self.score = 0
         self.color = color
+
     def render(self):
         font = pygame.font.Font(None, 50)
         text = font.render(f"{self.score}", True, self.color)
-        # text_x = width // 2 - text.get_width() // 2
-        # text_y = height // 2 - text.get_height() // 2
         text_x = self.x
         text_y = self.y
         text_w = text.get_width()
         text_h = text.get_height()
         screen.blit(text, (text_x, text_y))
         pygame.draw.rect(screen, self.color, (text_x - 10, text_y - 10,
-                                               text_w + 20, text_h + 20), 1)
+                                              text_w + 20, text_h + 20), 1)
+
+
 podchet_scoreBlue = Score(515, 15, "blue")
 podchet_scoreRed = Score(570, 15, "red")
 
@@ -118,6 +121,7 @@ class Base(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+        self.hp = 5
 
 
 class Board:
@@ -181,15 +185,21 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.collide_mask(self, tank1) and self.player == 2:
             tank1.hp -= 1
             self.kill()
-            pygame.mixer.music.load('data/probitie.mp3')
-            pygame.mixer.music.play()
+            if tank1.hp == 0:
+                podchet_scoreRed.score += 1
+            if tank1.hp > 0:
+                pygame.mixer.music.load('data/probitie.mp3')
+                pygame.mixer.music.play()
             AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
             return
         elif pygame.sprite.collide_mask(self, tank2) and self.player == 1:
             tank2.hp -= 1
             self.kill()
-            pygame.mixer.music.load('data/probitie.mp3')
-            pygame.mixer.music.play()
+            if tank2.hp > 0:
+                pygame.mixer.music.load('data/probitie.mp3')
+                pygame.mixer.music.play()
+            if tank2.hp == 0:
+                podchet_scoreBlue.score += 1
             AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
             return
         if self.player == 1:
@@ -217,6 +227,16 @@ class Bullet(pygame.sprite.Sprite):
                 AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
                 i.kill()
                 return
+        if pygame.sprite.collide_mask(self, base1):
+            base1.hp -= 1
+            AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
+            self.kill()
+        if pygame.sprite.collide_mask(self, base2):
+            base2.hp -= 1
+            AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
+            self.kill()
+
+
 class Tank(pygame.sprite.Sprite):
     image_of_tank = [load_image("tankBlue.png", cell_size, cell_size, -1),
                      load_image("tankRed.png", cell_size, cell_size, -1)]
@@ -237,41 +257,41 @@ class Tank(pygame.sprite.Sprite):
     # def shoot(self, x, y, vx, vy):
     #     pass
     def move(self, x, y):
-        tx = self.x
-        ty = self.y
-        if x != self.x and y != self.y:
-            return
-        if x > self.x:
-            self.image = pygame.transform.rotate(self.image_of_tank, 270)
-            self.gradus = 270
-        if x < self.x:
-            self.image = pygame.transform.rotate(self.image_of_tank, 90)
-            self.gradus = 90
-        if y > self.y:
-            self.image = pygame.transform.rotate(self.image_of_tank, 180)
-            self.gradus = 180
-        if y < self.y:
-            self.image = self.image_of_tank
-        self.rect.x = x
-        self.rect.y = y
-        self.x = x
-        self.y = y
-        for i in blocks_not_breaking:
-            if pygame.sprite.collide_mask(self, i):
-                self.rect.x = tx
-                self.rect.y = ty
-                self.x = tx
-                self.y = ty
-        for i in blocks_breaking:
-            if pygame.sprite.collide_mask(self, i):
-                self.rect.x = tx
-                self.rect.y = ty
-                self.x = tx
-                self.y = ty
+        if self.hp > 0:
+            tx = self.x
+            ty = self.y
+            if x != self.x and y != self.y:
+                return
+            if x > self.x:
+                self.image = pygame.transform.rotate(self.image_of_tank, 270)
+                self.gradus = 270
+            if x < self.x:
+                self.image = pygame.transform.rotate(self.image_of_tank, 90)
+                self.gradus = 90
+            if y > self.y:
+                self.image = pygame.transform.rotate(self.image_of_tank, 180)
+                self.gradus = 180
+            if y < self.y:
+                self.image = self.image_of_tank
+            self.rect.x = x
+            self.rect.y = y
+            self.x = x
+            self.y = y
+            for i in blocks_not_breaking:
+                if pygame.sprite.collide_mask(self, i):
+                    self.rect.x = tx
+                    self.rect.y = ty
+                    self.x = tx
+                    self.y = ty
+            for i in blocks_breaking:
+                if pygame.sprite.collide_mask(self, i):
+                    self.rect.x = tx
+                    self.rect.y = ty
+                    self.x = tx
+                    self.y = ty
 
     def update(self, *args):
         if self.hp == 0 and self.music_tank_unich:
-            print(1)
             pygame.mixer.music.load('data/tank-unichtozhen.mp3')
             pygame.mixer.music.play()
             self.music_tank_unich = False
@@ -322,7 +342,17 @@ def create_particles(position):
     for _ in range(particle_count):
         Particle(position, random.choice(numbers), random.choice(numbers))
 
-
+class TextWin(pygame.sprite.Sprite):
+    images_wins = [load_image("WinRed.png", 400, 200), load_image("WinBlue.png", 400, 200)]
+    def __init__(self, x, y, player):
+        super().__init__(all_sprites)
+        player -= 1
+        self.image = TextWin.images_wins[player]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    def update(self, *args):
+        pass
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(all_sprites)
@@ -363,30 +393,34 @@ go_tank2 = False
 dx_tank2 = 0
 dy_tank2 = 0
 step = 1.7
-step_bullet = 10
+step_bullet = 5
 bullet_dx_tank1 = 0
-bullet_dy_tank1 = step
+bullet_dy_tank1 = step_bullet
 bullet_dx_tank2 = 0
-bullet_dy_tank2 = -step
+bullet_dy_tank2 = -step_bullet
 play = True
 ready_vistrel_tank1 = True
 ready_vistrel_tank2 = True
 time_peresaryadky = 800
 pygame.time.set_timer(EVENT_PERESAR_TANK1, time_peresaryadky)
 pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
+time_spawn = 2500
 for i in range(playground.height):
     for j in range(playground.width):
         if playground.board[i][j] == 4:
             tank2 = Tank(j * cell_size, i * cell_size, 1)
+            row_spawn_tank2, column_spawn_tank2 = j + 1, i + 1
         if playground.board[i][j] == 3:
             tank1 = Tank(j * cell_size, i * cell_size, 0)
+            row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
 tank1.image = pygame.transform.rotate(tank1.image_of_tank, 180)
 
 pygame.init()
+start_timer_tank1 = False
+start_timer_tank2 = False
 # playing_music_of_tank_unichtozhen = True
 while running:
-
-    if (tank1.hp == 0 or tank2.hp == 0) and play:
+    if (podchet_scoreBlue.score == 5 or podchet_scoreRed.score == 5 or base1.hp == 0 or base2.hp == 0) and play:
         # if playing_music_of_tank_unichtozhen:
         #     playing_music_of_tank_unichtozhen = False
         create_particles((100, 100))
@@ -395,7 +429,17 @@ while running:
         create_particles((100, 400))
         create_particles((225, 250))
         create_particles((250, 250))
+        if tank1.hp == 0 or base1.hp == 0:
+            TextWin(500 // 2 - 200, 500 // 2 - 100, 1)
+        else:
+            TextWin(500 // 2 - 200, 500 // 2 - 100, 2)
         play = False
+    if tank1.hp <= 0 and start_timer_tank1 is False:
+        pygame.time.set_timer(EVENT_SPAWN_TANK1, time_spawn)
+        start_timer_tank1 = True
+    if tank2.hp <= 0 and start_timer_tank2 is False:
+        pygame.time.set_timer(EVENT_SPAWN_TANK2, time_spawn)
+        start_timer_tank2 = True
     if play:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -423,7 +467,7 @@ while running:
                     bullet_dy_tank1 = 0
                     go_tank1 = True
                 if event.key == pygame.K_SPACE:
-                    if ready_vistrel_tank1:
+                    if ready_vistrel_tank1 and tank1.hp > 0:
                         Bullet(tank1.x, tank1.y, bullet_dx_tank1, bullet_dy_tank1, 1)
                         pygame.mixer.music.load('data/zvuk_shoot (mp3cut.net).mp3')
                         pygame.mixer.music.play()
@@ -453,7 +497,7 @@ while running:
                     bullet_dy_tank2 = 0
                     go_tank2 = True
                 if event.key == pygame.K_RETURN:
-                    if ready_vistrel_tank2:
+                    if ready_vistrel_tank2 and tank2.hp > 0:
                         Bullet(tank2.x, tank2.y, bullet_dx_tank2, bullet_dy_tank2, 2)
                         pygame.mixer.music.load('data/zvuk_shoot (mp3cut.net).mp3')
                         pygame.mixer.music.play()
@@ -490,6 +534,25 @@ while running:
                 ready_vistrel_tank1 = True
             if event.type == EVENT_PERESAR_TANK2:
                 ready_vistrel_tank2 = True
+            if event.type == EVENT_SPAWN_TANK1 and tank1.hp <= 0:
+                tank1.kill()
+
+                # tank1 = Tank(column_spawn_tank1 * cell_size, row_spawn_tank1 * cell_size, 1)
+                for i in range(playground.height):
+                    for j in range(playground.width):
+                        if playground.board[i][j] == 3:
+                            tank1 = Tank(j * cell_size, i * cell_size, 0)
+                            row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
+                start_timer_tank1 = False
+            if event.type == EVENT_SPAWN_TANK2 and tank2.hp <= 0:
+                tank2.kill()
+                # tank2 = Tank(column_spawn_tank2 * cell_size, row_spawn_tank2 * cell_size, 2)
+                for i in range(playground.height):
+                    for j in range(playground.width):
+                        if playground.board[i][j] == 4:
+                            tank2 = Tank(j * cell_size, i * cell_size, 1)
+                            row_spawn_tank2, column_spawn_tank2 = j + 1, i + 1
+                start_timer_tank1 = False
         if go_tank1:
             tank1.move(tank1.x + dx_tank1, tank1.y + dy_tank1)
         if go_tank2:
