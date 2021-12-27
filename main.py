@@ -16,7 +16,24 @@ EVENT_PERESAR_TANK2 = 60
 EVENT_SPAWN_TANK2 = 40
 EVENT_SPAWN_TANK1 = 90
 TIME = 600000
-HP_TANKS = 5
+HP_TANKS = 3
+HP_BASE = 5
+
+
+def draw(screen):
+    font = pygame.font.Font(None, 50)
+    text = font.render(f"BASE HP", True, "green")
+    text_x = 535
+    text_y = 270
+    text_w = text.get_width()
+    text_h = text.get_height()
+    screen.blit(text, (text_x, text_y))
+    # pygame.draw.rect(screen, "green", (text_x - 10, text_y - 10,
+    #                                       text_w + 20, text_h + 20), 1)
+    text = font.render(f"TANK HP", True, "green")
+    text_x = 535
+    text_y = 150
+    screen.blit(text, (text_x, text_y))
 
 
 class Score:
@@ -123,7 +140,7 @@ class Base(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        self.hp = 5
+        self.hp = HP_BASE
 
 
 class Board:
@@ -235,8 +252,10 @@ class Bullet(pygame.sprite.Sprite):
             base1.hp -= 1
             AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
             self.kill()
+            base1_hp.update_hp()
         if pygame.sprite.collide_mask(self, base2):
             base2.hp -= 1
+            base2_hp.update_hp()
             AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, self.rect.x, self.rect.y)
             self.kill()
 
@@ -414,8 +433,8 @@ class Timer:
 
 
 class Hp:
-    def __init__(self, x, y, player):
-        self.hp = HP_TANKS
+    def __init__(self, x, y, player, hp):
+        self.hp = hp
         self.color = ["Blue", "Red"][player - 1]
         self.x, self.y = x, y
 
@@ -436,7 +455,8 @@ class Hp:
 
 
 pygame.display.set_caption('Танчики')
-screen = pygame.display.set_mode((700, 500))
+WIDTH, HEIGHT = SIZE_WINDOW = (715, 500)
+screen = pygame.display.set_mode(SIZE_WINDOW)
 playground = Board(25, 25)
 base1 = Base(12 * cell_size, 1 * cell_size, 1)
 base2 = Base(12 * cell_size, (25 - 2) * cell_size, 2)
@@ -464,8 +484,10 @@ pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
 time_spawn = 2500
 TIMER_EVENT = 260
 timer = Timer(515, 100)
-hp_tank1 = Hp(515, 170, 1)
-hp_tank2 = Hp(515, 230, 2)
+hp_tank1 = Hp(515, 200, 1, HP_TANKS)
+hp_tank2 = Hp(620, 200, 2, HP_TANKS)
+base1_hp = Hp(515, 320, 1, HP_BASE)
+base2_hp = Hp(620, 320, 2, HP_BASE)
 pygame.time.set_timer(TIMER_EVENT, 1000)
 for i in range(playground.height):
     for j in range(playground.width):
@@ -651,5 +673,8 @@ while running:
     timer.render()
     hp_tank1.render()
     hp_tank2.render()
+    base1_hp.render()
+    base2_hp.render()
+    draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
