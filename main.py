@@ -15,6 +15,8 @@ EVENT_PERESAR_TANK1 = 30
 EVENT_PERESAR_TANK2 = 60
 EVENT_SPAWN_TANK2 = 40
 EVENT_SPAWN_TANK1 = 90
+TIME = 600000
+HP_TANKS = 5
 
 
 class Score:
@@ -184,6 +186,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += self.vy
         if pygame.sprite.collide_mask(self, tank1) and self.player == 2:
             tank1.hp -= 1
+            hp_tank1.update_hp()
             self.kill()
             if tank1.hp == 0:
                 podchet_scoreRed.score += 1
@@ -195,6 +198,7 @@ class Bullet(pygame.sprite.Sprite):
         elif pygame.sprite.collide_mask(self, tank2) and self.player == 1:
             tank2.hp -= 1
             self.kill()
+            hp_tank2.update_hp()
             if tank2.hp > 0:
                 pygame.mixer.music.load('data/probitie.mp3')
                 pygame.mixer.music.play()
@@ -248,7 +252,7 @@ class Tank(pygame.sprite.Sprite):
         self.image_of_tank = Tank.image_of_tank[player]
         self.rect.x = x
         self.rect.y = y
-        self.hp = 2
+        self.hp = HP_TANKS
         self.x, self.y = x, y
         self.music_tank_unich = True
         self.gradus = 180
@@ -342,8 +346,11 @@ def create_particles(position):
     for _ in range(particle_count):
         Particle(position, random.choice(numbers), random.choice(numbers))
 
+
 class TextWin(pygame.sprite.Sprite):
-    images_wins = [load_image("WinRed.png", 400, 200), load_image("WinBlue.png", 400, 200)]
+    images_wins = [load_image("WinRed.png", 400, 200), load_image("WinBlue.png", 400, 200),
+                   load_image("Draw.png", 400, 200)]
+
     def __init__(self, x, y, player):
         super().__init__(all_sprites)
         player -= 1
@@ -351,8 +358,11 @@ class TextWin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
     def update(self, *args):
         pass
+
+
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(all_sprites)
@@ -378,12 +388,59 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.kill()
 
 
+class Timer:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.time = TIME
+
+    def render(self):
+        font = pygame.font.Font(None, 50)
+        sec = self.time // 1000
+        min = sec // 60
+        sec = sec % 60
+        if len(str(sec)) == 1:
+            sec = f"0{sec}"
+        text = font.render(f"{min}:{sec}", True, "green")
+        text_x = self.x
+        text_y = self.y
+        text_w = text.get_width()
+        text_h = text.get_height()
+        screen.blit(text, (text_x, text_y))
+        pygame.draw.rect(screen, "green", (text_x - 10, text_y - 10,
+                                           text_w + 20, text_h + 20), 1)
+
+    def update_timer(self):
+        self.time -= 1000
+
+
+class Hp:
+    def __init__(self, x, y, player):
+        self.hp = HP_TANKS
+        self.color = ["Blue", "Red"][player - 1]
+        self.x, self.y = x, y
+
+    def update_hp(self):
+        self.hp -= 1
+        self.hp = max(0, self.hp)
+
+    def render(self):
+        font = pygame.font.Font(None, 50)
+        text = font.render(f"HP-{self.hp}", True, self.color)
+        text_x = self.x
+        text_y = self.y
+        text_w = text.get_width()
+        text_h = text.get_height()
+        screen.blit(text, (text_x, text_y))
+        pygame.draw.rect(screen, self.color, (text_x - 10, text_y - 10,
+                                              text_w + 20, text_h + 20), 1)
+
+
 pygame.display.set_caption('Танчики')
 screen = pygame.display.set_mode((700, 500))
 playground = Board(25, 25)
 base1 = Base(12 * cell_size, 1 * cell_size, 1)
 base2 = Base(12 * cell_size, (25 - 2) * cell_size, 2)
-fps = 30  # количество кадров в секунду
+FPS = 30  # количество кадров в секунду
 clock = pygame.time.Clock()
 running = True
 go_tank1 = False
@@ -405,6 +462,11 @@ time_peresaryadky = 800
 pygame.time.set_timer(EVENT_PERESAR_TANK1, time_peresaryadky)
 pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
 time_spawn = 2500
+TIMER_EVENT = 260
+timer = Timer(515, 100)
+hp_tank1 = Hp(515, 170, 1)
+hp_tank2 = Hp(515, 230, 2)
+pygame.time.set_timer(TIMER_EVENT, 1000)
 for i in range(playground.height):
     for j in range(playground.width):
         if playground.board[i][j] == 4:
@@ -431,6 +493,22 @@ while running:
         create_particles((250, 250))
         if tank1.hp == 0 or base1.hp == 0:
             TextWin(500 // 2 - 200, 500 // 2 - 100, 1)
+        else:
+            TextWin(500 // 2 - 200, 500 // 2 - 100, 2)
+        play = False
+    elif timer.time == 0 and play:
+        # if playing_music_of_tank_unichtozhen:
+        #     playing_music_of_tank_unichtozhen = False
+        create_particles((100, 100))
+        create_particles((400, 100))
+        create_particles((400, 400))
+        create_particles((100, 400))
+        create_particles((225, 250))
+        create_particles((250, 250))
+        if podchet_scoreBlue.score < podchet_scoreRed.score:
+            TextWin(500 // 2 - 200, 500 // 2 - 100, 1)
+        elif podchet_scoreBlue.score == podchet_scoreRed.score:
+            TextWin(500 // 2 - 200, 500 // 2 - 100, 3)
         else:
             TextWin(500 // 2 - 200, 500 // 2 - 100, 2)
         play = False
@@ -536,6 +614,7 @@ while running:
                 ready_vistrel_tank2 = True
             if event.type == EVENT_SPAWN_TANK1 and tank1.hp <= 0:
                 tank1.kill()
+                hp_tank1.hp = HP_TANKS
 
                 # tank1 = Tank(column_spawn_tank1 * cell_size, row_spawn_tank1 * cell_size, 1)
                 for i in range(playground.height):
@@ -545,6 +624,7 @@ while running:
                             row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
                 start_timer_tank1 = False
             if event.type == EVENT_SPAWN_TANK2 and tank2.hp <= 0:
+                hp_tank2.hp = HP_TANKS
                 tank2.kill()
                 # tank2 = Tank(column_spawn_tank2 * cell_size, row_spawn_tank2 * cell_size, 2)
                 for i in range(playground.height):
@@ -553,6 +633,8 @@ while running:
                             tank2 = Tank(j * cell_size, i * cell_size, 1)
                             row_spawn_tank2, column_spawn_tank2 = j + 1, i + 1
                 start_timer_tank1 = False
+            if event.type == TIMER_EVENT:
+                timer.update_timer()
         if go_tank1:
             tank1.move(tank1.x + dx_tank1, tank1.y + dy_tank1)
         if go_tank2:
@@ -566,5 +648,8 @@ while running:
     all_sprites.update(event)
     podchet_scoreRed.render()
     podchet_scoreBlue.render()
+    timer.render()
+    hp_tank1.render()
+    hp_tank2.render()
     pygame.display.flip()
-    clock.tick(fps)
+    clock.tick(FPS)
