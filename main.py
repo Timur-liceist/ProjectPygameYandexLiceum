@@ -15,47 +15,9 @@ EVENT_PERESAR_TANK1 = 30
 EVENT_PERESAR_TANK2 = 60
 EVENT_SPAWN_TANK2 = 40
 EVENT_SPAWN_TANK1 = 90
-TIME = 600000
+TIME = 150000
 HP_TANKS = 3
 HP_BASE = 5
-
-
-def draw(screen):
-    font = pygame.font.Font(None, 50)
-    text = font.render(f"BASE HP", True, "green")
-    text_x = 535
-    text_y = 270
-    text_w = text.get_width()
-    text_h = text.get_height()
-    screen.blit(text, (text_x, text_y))
-    # pygame.draw.rect(screen, "green", (text_x - 10, text_y - 10,
-    #                                       text_w + 20, text_h + 20), 1)
-    text = font.render(f"TANK HP", True, "green")
-    text_x = 535
-    text_y = 150
-    screen.blit(text, (text_x, text_y))
-
-
-class Score:
-    def __init__(self, x, y, color):
-        self.x, self.y = x, y
-        self.score = 0
-        self.color = color
-
-    def render(self):
-        font = pygame.font.Font(None, 50)
-        text = font.render(f"{self.score}", True, self.color)
-        text_x = self.x
-        text_y = self.y
-        text_w = text.get_width()
-        text_h = text.get_height()
-        screen.blit(text, (text_x, text_y))
-        pygame.draw.rect(screen, self.color, (text_x - 10, text_y - 10,
-                                              text_w + 20, text_h + 20), 1)
-
-
-podchet_scoreBlue = Score(515, 15, "blue")
-podchet_scoreRed = Score(570, 15, "red")
 
 
 def load_image(name, w=None, h=None, colorkey=None):
@@ -83,6 +45,63 @@ def load_image(name, w=None, h=None, colorkey=None):
     if w and h:
         image = pygame.transform.scale(image, (w, h))
     return image
+
+
+class Heart(pygame.sprite.Sprite):
+    images_of_heart = [load_image("HpBlue.png", 30, 30), load_image("HpRed.png", 30, 30)]
+
+    def __init__(self, x, y, player):
+        super().__init__(all_sprites)
+        self.image = Heart.images_of_heart[player - 1]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, args):
+        pass
+
+
+class Hp:
+
+    def __init__(self, x, y, player, hp):
+        self.hp = hp
+        self.color = ["Blue", "Red"][player - 1]
+        self.x, self.y = x, y
+        self.hearts = []
+        for i in range(self.hp):
+            heart = Heart(x, y, player)
+            x += 15
+            self.hearts.append(heart)
+
+    def update_hp(self):
+        self.hp -= 1
+        if self.hearts:
+            self.hearts[-1].kill()
+            del self.hearts[-1]
+
+
+class Score:
+
+    def __init__(self, x, y, color):
+        self.x, self.y = x, y
+        self.score = 0
+        self.color = color
+
+    def render(self):
+        font = pygame.font.Font(None, 50)
+        text = font.render(f"{self.score}", True, self.color)
+        text_x = self.x
+        text_y = self.y
+        text_w = text.get_width()
+        text_h = text.get_height()
+        screen.blit(text, (text_x, text_y))
+        pygame.draw.rect(screen, self.color, (text_x - 10, text_y - 10,
+                                              text_w + 20, text_h + 20), 1)
+
+
+podchet_scoreBlue = Score(515, 15, "blue")
+
+podchet_scoreRed = Score(570, 15, "red")
 
 
 def terminate():
@@ -432,28 +451,6 @@ class Timer:
         self.time -= 1000
 
 
-class Hp:
-    def __init__(self, x, y, player, hp):
-        self.hp = hp
-        self.color = ["Blue", "Red"][player - 1]
-        self.x, self.y = x, y
-
-    def update_hp(self):
-        self.hp -= 1
-        self.hp = max(0, self.hp)
-
-    def render(self):
-        font = pygame.font.Font(None, 50)
-        text = font.render(f"HP-{self.hp}", True, self.color)
-        text_x = self.x
-        text_y = self.y
-        text_w = text.get_width()
-        text_h = text.get_height()
-        screen.blit(text, (text_x, text_y))
-        pygame.draw.rect(screen, self.color, (text_x - 10, text_y - 10,
-                                              text_w + 20, text_h + 20), 1)
-
-
 pygame.display.set_caption('Танчики')
 WIDTH, HEIGHT = SIZE_WINDOW = (715, 500)
 screen = pygame.display.set_mode(SIZE_WINDOW)
@@ -484,10 +481,9 @@ pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
 time_spawn = 2500
 TIMER_EVENT = 260
 timer = Timer(515, 100)
-hp_tank1 = Hp(515, 200, 1, HP_TANKS)
-hp_tank2 = Hp(620, 200, 2, HP_TANKS)
-base1_hp = Hp(515, 320, 1, HP_BASE)
-base2_hp = Hp(620, 320, 2, HP_BASE)
+
+base1_hp = Hp(500 // 2 - (HP_BASE * 15) // 2, -5, 1, HP_BASE)
+base2_hp = Hp(500 // 2 - (HP_BASE * 15) // 2, 500 - 25, 2, HP_BASE)
 pygame.time.set_timer(TIMER_EVENT, 1000)
 for i in range(playground.height):
     for j in range(playground.width):
@@ -502,7 +498,11 @@ tank1.image = pygame.transform.rotate(tank1.image_of_tank, 180)
 pygame.init()
 start_timer_tank1 = False
 start_timer_tank2 = False
+hp_tank2 = Hp(545, 250, 2, HP_TANKS)
+hp_tank1 = Hp(545, 200, 1, HP_TANKS)
 # playing_music_of_tank_unichtozhen = True
+Tank(515, 200, 0)
+Tank(515, 250, 1)
 while running:
     if (podchet_scoreBlue.score == 5 or podchet_scoreRed.score == 5 or base1.hp == 0 or base2.hp == 0) and play:
         # if playing_music_of_tank_unichtozhen:
@@ -635,6 +635,7 @@ while running:
             if event.type == EVENT_PERESAR_TANK2:
                 ready_vistrel_tank2 = True
             if event.type == EVENT_SPAWN_TANK1 and tank1.hp <= 0:
+                hp_tank1 = Hp(545, 200, 1, HP_TANKS)
                 tank1.kill()
                 hp_tank1.hp = HP_TANKS
 
@@ -646,6 +647,8 @@ while running:
                             row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
                 start_timer_tank1 = False
             if event.type == EVENT_SPAWN_TANK2 and tank2.hp <= 0:
+
+                hp_tank2 = Hp(545, 250, 2, HP_TANKS)
                 hp_tank2.hp = HP_TANKS
                 tank2.kill()
                 # tank2 = Tank(column_spawn_tank2 * cell_size, row_spawn_tank2 * cell_size, 2)
@@ -671,10 +674,5 @@ while running:
     podchet_scoreRed.render()
     podchet_scoreBlue.render()
     timer.render()
-    hp_tank1.render()
-    hp_tank2.render()
-    base1_hp.render()
-    base2_hp.render()
-    draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
