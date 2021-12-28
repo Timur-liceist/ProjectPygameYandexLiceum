@@ -1,6 +1,7 @@
 from variables import all_sprites, HP_TANKS, blocks_breaking, blocks_not_breaking
 from functions import load_image
 import pygame
+from variables import cell_size
 class Tank(pygame.sprite.Sprite):
     image_of_tank = [load_image("tankBlue.png"),
                      load_image("tankRed.png")]
