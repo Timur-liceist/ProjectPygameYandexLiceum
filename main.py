@@ -18,6 +18,7 @@ def start_game(TIME, level):
     from score import Score
     from board import Board
     from base import Base
+
     podchet_scoreBlue = Score(515, 15, "blue")
 
     podchet_scoreRed = Score(570, 15, "red")
@@ -45,10 +46,10 @@ def start_game(TIME, level):
         for j in range(playground.width):
             if playground.board[i][j] == 4:
                 tank2 = Tank(j * cell_size, i * cell_size, 1)
-                row_spawn_tank2, column_spawn_tank2 = j + 1, i + 1
+                row_spawn_tank2, column_spawn_tank2 = j, i
             if playground.board[i][j] == 3:
                 tank1 = Tank(j * cell_size, i * cell_size, 0)
-                row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
+                row_spawn_tank1, column_spawn_tank1 = j, i
     tank1.image = pygame.transform.rotate(tank1.image_of_tank, 180)
 
     pygame.init()
@@ -339,11 +340,7 @@ def start_game(TIME, level):
                     hp_tank1.hp = HP_TANKS
 
                     # tank1 = Tank(column_spawn_tank1 * cell_size, row_spawn_tank1 * cell_size, 1)
-                    for i in range(playground.height):
-                        for j in range(playground.width):
-                            if playground.board[i][j] == 3:
-                                tank1 = Tank(j * cell_size, i * cell_size, 0)
-                                row_spawn_tank1, column_spawn_tank1 = j + 1, i + 1
+                    tank1 = Tank(row_spawn_tank1 * cell_size, column_spawn_tank1 * cell_size, 0)
                     start_timer_tank1 = False
                 if event.type == EVENT_SPAWN_TANK2 and tank2.hp <= 0:
 
@@ -351,11 +348,7 @@ def start_game(TIME, level):
                     hp_tank2.hp = HP_TANKS
                     tank2.kill()
                     # tank2 = Tank(column_spawn_tank2 * cell_size, row_spawn_tank2 * cell_size, 2)
-                    for i in range(playground.height):
-                        for j in range(playground.width):
-                            if playground.board[i][j] == 4:
-                                tank2 = Tank(j * cell_size, i * cell_size, 1)
-                                row_spawn_tank2, column_spawn_tank2 = j + 1, i + 1
+                    tank2 = Tank(row_spawn_tank2 * cell_size, column_spawn_tank2 * cell_size, 1)
                     start_timer_tank1 = False
                 if event.type == TIMER_EVENT:
                     timer.update_timer()
@@ -374,6 +367,8 @@ def start_game(TIME, level):
                     if event.button == 1:
                         if button_to_menu.mouse_on_button(event.pos):
                             running = False
+                            for i in all_sprites:
+                                i.kill()
                 if event.type == pygame.QUIT:
                     sys.exit()
         screen.fill((0, 0, 0))
