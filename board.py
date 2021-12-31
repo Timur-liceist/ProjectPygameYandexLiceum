@@ -1,13 +1,13 @@
-from data.level import level
+from data.levels import level
 from variables import cell_size
 from block import Block
 from grass import Grass
 class Board:
     # создание поля
-    def __init__(self, width, height):
+    def __init__(self, width, height, level_for_game):
         self.width = width
         self.height = height
-        self.board = level.copy()
+        self.board = level[level_for_game].copy()
         self.left = 0
         self.top = 0
         self.cell_size = cell_size

@@ -14,7 +14,7 @@ HP_TANKS = 3
 HP_BASE = 5
 GRAVITY = 0.1
 screen_rect = (0, 0, 500, 500)
-WIDTH, HEIGHT = SIZE_WINDOW = (715, 500)
+WIDTH, HEIGHT = SIZE_WINDOW = (650, 500)
 screen = pygame.display.set_mode(SIZE_WINDOW)
 time_spawn = 2500
 TIMER_EVENT = 260

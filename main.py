@@ -1,4 +1,3 @@
-
 def start_game(TIME, level):
     import pygame
     from button import Button
@@ -31,7 +30,7 @@ def start_game(TIME, level):
 
     pygame.display.set_caption('Танчики')
 
-    playground = Board(25, 25)
+    playground = Board(25, 25, level_for_game=level)
     base1 = Base(12 * cell_size, 1 * cell_size, 1)
     base2 = Base(12 * cell_size, (25 - 2) * cell_size, 2)
     time_peresaryadky = 800

@@ -1,0 +1,24 @@
+{
+     "drop_down_menu":
+     {
+         "misc":
+         {
+             "expand_direction": "up"
+         },
+
+         "colours":
+         {
+             "normal_bg": "orange",
+             "normal_border": "orange",
+             "hovered_bg": "orange",
+             "dark_bg": "green"
+         }
+     },
+     "drop_down_menu.#selected_option":
+     {
+         "misc":
+         {
+            "border_width": "859"
+         }
+     }
+ }
