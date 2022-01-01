@@ -29,10 +29,7 @@ combobox = pygame_gui.elements.UIDropDownMenu(
     options_list=list(level.keys()),
     starting_option=list(level.keys())[0],
 )
-combobox.background_colour = pygame.Color("orange")
-combobox.disabled_background_colour = pygame.Color("orange")
-combobox.disabled_border_colour= pygame.Color("orange")
-combobox.border_colour = pygame.Color("orange")
+
 button_time_2.set_color(color_after)
 while running:
     for event in pygame.event.get():

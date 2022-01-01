@@ -1,4 +1,4 @@
-{
+ {
      "drop_down_menu":
      {
          "misc":
@@ -8,17 +8,20 @@
 
          "colours":
          {
-             "normal_bg": "orange",
-             "normal_border": "orange",
-             "hovered_bg": "orange",
-             "dark_bg": "green"
+             "normal_bg": "#ffa500",
+             "hovered_bg": "#ffa500",
+             "dark_bg": "#ffa500",
+             "normal_border": "#ffa500",
+             "disabled_dark_bg": "#ffa500",
+             "disabled_border": "#ffa500"
          }
      },
      "drop_down_menu.#selected_option":
      {
          "misc":
          {
-            "border_width": "859"
+            "border_width": "1",
+            "open_button_width": "10"
          }
      }
  }
