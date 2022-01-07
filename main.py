@@ -6,7 +6,7 @@ def start_game(TIME, level):
     from functions import load_image
     from variables import all_sprites, cell_size, blocks_breaking, blocks_not_breaking, bullets_of_player1, \
         bullets_of_player2, EVENT_PERESAR_TANK1, EVENT_SPAWN_TANK2, EVENT_PERESAR_TANK2, EVENT_SPAWN_TANK1, TIMER_EVENT, \
-        HP_TANKS, HP_BASE, screen, time_spawn
+        HP_TANKS, HP_BASE, screen, time_spawn, time_spawn_of_box_with_hp, EVENT_SPAWN_BOX_WITH_HP
     from bullet import AnimatedSprite
     from timer import Timer
     from hp import Hp
@@ -17,6 +17,7 @@ def start_game(TIME, level):
     from score import Score
     from board import Board
     from base import Base
+    from new_hp import BoxWithHp
 
     podchet_scoreBlue = Score(515, 15, "blue")
 
@@ -78,8 +79,8 @@ def start_game(TIME, level):
     # playing_music_of_tank_unichtozhen = True
     Tank(515, 200, 0)
     Tank(515, 250, 1)
-
-
+    box_with_hp = BoxWithHp(playground)
+    pygame.time.set_timer(EVENT_SPAWN_BOX_WITH_HP, time_spawn_of_box_with_hp)
     def update():
         for i in bullets_of_player1:
             if pygame.sprite.collide_mask(i, tank1) and i.player == 2:
@@ -197,9 +198,9 @@ def start_game(TIME, level):
                 base2_hp.update_hp()
                 AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, i.rect.x, i.rect.y)
                 i.kill()
-
-
+    flag_box_with_hp = True
     while running:
+        print(tank1.hp, tank2.hp)
         if (podchet_scoreBlue.score == 5 or podchet_scoreRed.score == 5 or base1.hp == 0 or base2.hp == 0) and play:
             # if playing_music_of_tank_unichtozhen:
             #     playing_music_of_tank_unichtozhen = False
@@ -333,6 +334,9 @@ def start_game(TIME, level):
                     ready_vistrel_tank1 = True
                 if event.type == EVENT_PERESAR_TANK2:
                     ready_vistrel_tank2 = True
+                if event.type == EVENT_SPAWN_BOX_WITH_HP and not flag_box_with_hp:
+                    box_with_hp = BoxWithHp(playground)
+                    flag_box_with_hp = True
                 if event.type == EVENT_SPAWN_TANK1 and tank1.hp <= 0:
                     hp_tank1 = Hp(545, 200, 1, HP_TANKS)
                     tank1.kill()
@@ -379,10 +383,26 @@ def start_game(TIME, level):
         podchet_scoreRed.render()
         podchet_scoreBlue.render()
         timer.render()
-        update()
         try:
             button_to_menu.render(screen)
         except Exception:
             pass
+        if pygame.sprite.collide_mask(tank1, box_with_hp):
+            flag_box_with_hp = False
+            box_with_hp.kill()
+            box_with_hp.rect.x = -100
+            for i in hp_tank1.hearts:
+                i.kill()
+            hp_tank1 = Hp(545, 200, 1, HP_TANKS)
+            tank1.hp = HP_TANKS
+        if pygame.sprite.collide_mask(tank2, box_with_hp):
+            flag_box_with_hp = False
+            box_with_hp.kill()
+            box_with_hp.rect.x = -100
+            for i in hp_tank2.hearts:
+                i.kill()
+            hp_tank2 = Hp(545, 250, 2, HP_TANKS)
+            tank2.hp = HP_TANKS
+        update()
         pygame.display.flip()
         clock.tick(FPS)

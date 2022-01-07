@@ -16,5 +16,7 @@ GRAVITY = 0.1
 screen_rect = (0, 0, 500, 500)
 WIDTH, HEIGHT = SIZE_WINDOW = (650, 500)
 screen = pygame.display.set_mode(SIZE_WINDOW)
-time_spawn = 2500
+time_spawn = 3500
 TIMER_EVENT = 260
+EVENT_SPAWN_BOX_WITH_HP = 80
+time_spawn_of_box_with_hp = 6000
