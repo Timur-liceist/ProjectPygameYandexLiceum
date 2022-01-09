@@ -1,5 +1,5 @@
-from functions import load_image
-from variables import all_sprites
+from scripts.functions import load_image
+from scripts.variables import all_sprites
 import pygame
 class TextWin(pygame.sprite.Sprite):
     images_wins = [load_image("WinRed.png", 400, 200), load_image("WinBlue.png", 400, 200),

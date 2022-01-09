@@ -1,7 +1,7 @@
 import pygame
-from functions import load_image
+from scripts.functions import load_image
 from random import randrange
-from variables import all_sprites
+from scripts.variables import all_sprites
 class BoxWithHp(pygame.sprite.Sprite):
     image_of_box = load_image("box_with_hp.png")
     def __init__(self, board):

@@ -1,8 +1,8 @@
 import pygame
-from functions import load_image
-from variables import all_sprites
+from scripts.functions import load_image
+from scripts.variables import all_sprites
 import random
-from variables import screen_rect, GRAVITY
+from scripts.variables import screen_rect, GRAVITY
 class Particle(pygame.sprite.Sprite):
     # сгенерируем частицы разного размера
     fire = [load_image("star.png")]

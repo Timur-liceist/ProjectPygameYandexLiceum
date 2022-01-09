@@ -1,5 +1,5 @@
 import pygame
-from variables import screen
+from scripts.variables import screen
 class Timer:
     def __init__(self, x, y, TIME):
         self.x, self.y = x, y

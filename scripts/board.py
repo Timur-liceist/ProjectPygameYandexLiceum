@@ -1,13 +1,14 @@
-from data.levels import level
-from variables import cell_size
-from block import Block
-from grass import Grass
+# from data.levels import level
+from scripts.variables import cell_size
+from scripts.block import Block
+from scripts.grass import Grass
+from scripts.functions import load_level
 class Board:
     # создание поля
     def __init__(self, width, height, level_for_game):
         self.width = width
         self.height = height
-        self.board = level[level_for_game].copy()
+        self.board = load_level(level_for_game)
         self.left = 0
         self.top = 0
         self.cell_size = cell_size

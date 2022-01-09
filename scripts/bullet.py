@@ -1,6 +1,6 @@
-from variables import bullets_of_player2, bullets_of_player1, all_sprites, cell_size
+from scripts.variables import bullets_of_player2, bullets_of_player1, all_sprites, cell_size
 import pygame
-from functions import load_image
+from scripts.functions import load_image
 class Bullet(pygame.sprite.Sprite):
     image_of_bullet = load_image("bullet.png", 20, 20)
 

@@ -1,7 +1,7 @@
-from variables import all_sprites, HP_TANKS, blocks_breaking, blocks_not_breaking
-from functions import load_image
+from scripts.variables import all_sprites, HP_TANKS, blocks_breaking, blocks_not_breaking
+from scripts.functions import load_image
 import pygame
-from variables import cell_size
+from scripts.variables import cell_size
 class Tank(pygame.sprite.Sprite):
     image_of_tank = [load_image("tankBlue.png"),
                      load_image("tankRed.png")]
@@ -57,7 +57,7 @@ class Tank(pygame.sprite.Sprite):
 
     def update(self, *args):
         if self.hp == 0 and self.music_tank_unich:
-            pygame.mixer.music.load('data/tank-unichtozhen.mp3')
+            pygame.mixer.music.load('../data/tank-unichtozhen.mp3')
             pygame.mixer.music.play()
             self.music_tank_unich = False
             self.image = pygame.transform.rotate(load_image("tankMinus.png", cell_size, cell_size), self.gradus)

@@ -1,6 +1,6 @@
 import pygame
-from functions import load_image
-from variables import all_sprites
+from scripts.functions import load_image
+from scripts.variables import all_sprites
 class Heart(pygame.sprite.Sprite):
     images_of_heart = [load_image("HpBlue.png", 30, 30), load_image("HpRed.png", 30, 30)]
 

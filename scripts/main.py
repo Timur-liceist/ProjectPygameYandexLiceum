@@ -1,23 +1,23 @@
 def start_game(TIME, level):
     import pygame
-    from button import Button
+    from scripts.button import Button
     import sys
-    from bullet import Bullet
-    from functions import load_image
-    from variables import all_sprites, cell_size, blocks_breaking, blocks_not_breaking, bullets_of_player1, \
+    from scripts.bullet import Bullet
+    from scripts.functions import load_image
+    from scripts.variables import all_sprites, cell_size, blocks_breaking, blocks_not_breaking, bullets_of_player1, \
         bullets_of_player2, EVENT_PERESAR_TANK1, EVENT_SPAWN_TANK2, EVENT_PERESAR_TANK2, EVENT_SPAWN_TANK1, TIMER_EVENT, \
         HP_TANKS, HP_BASE, screen, time_spawn, time_spawn_of_box_with_hp, EVENT_SPAWN_BOX_WITH_HP
-    from bullet import AnimatedSprite
-    from timer import Timer
-    from hp import Hp
-    from variables_for_menu import color_before, color_after
-    from tank import Tank
-    from text_win import TextWin
-    from particles import create_particles
-    from score import Score
-    from board import Board
-    from base import Base
-    from new_hp import BoxWithHp
+    from scripts.bullet import AnimatedSprite
+    from scripts.timer import Timer
+    from scripts.hp import Hp
+    from scripts.variables_for_menu import color_before, color_after
+    from scripts.tank import Tank
+    from scripts.text_win import TextWin
+    from scripts.particles import create_particles
+    from scripts.score import Score
+    from scripts.board import Board
+    from scripts.base import Base
+    from scripts.new_hp import BoxWithHp
 
     podchet_scoreBlue = Score(515, 15, "blue")
 
@@ -90,7 +90,7 @@ def start_game(TIME, level):
                 if tank1.hp == 0:
                     podchet_scoreRed.score += 1
                 if tank1.hp > 0:
-                    pygame.mixer.music.load('data/probitie.mp3')
+                    pygame.mixer.music.load('../data/probitie.mp3')
                     pygame.mixer.music.play()
                 AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, i.rect.x, i.rect.y)
                 return
@@ -99,7 +99,7 @@ def start_game(TIME, level):
                 i.kill()
                 hp_tank2.update_hp()
                 if tank2.hp > 0:
-                    pygame.mixer.music.load('data/probitie.mp3')
+                    pygame.mixer.music.load('../data/probitie.mp3')
                     pygame.mixer.music.play()
                 if tank2.hp == 0:
                     podchet_scoreBlue.score += 1
@@ -148,7 +148,7 @@ def start_game(TIME, level):
                 if tank1.hp == 0:
                     podchet_scoreRed.score += 1
                 if tank1.hp > 0:
-                    pygame.mixer.music.load('data/probitie.mp3')
+                    pygame.mixer.music.load('../data/probitie.mp3')
                     pygame.mixer.music.play()
                 AnimatedSprite(load_image("boom.png", cell_size * 5, 2 * cell_size), 5, 2, i.rect.x, i.rect.y)
                 return
@@ -157,7 +157,7 @@ def start_game(TIME, level):
                 i.kill()
                 hp_tank2.update_hp()
                 if tank2.hp > 0:
-                    pygame.mixer.music.load('data/probitie.mp3')
+                    pygame.mixer.music.load('../data/probitie.mp3')
                     pygame.mixer.music.play()
                 if tank2.hp == 0:
                     podchet_scoreBlue.score += 1
@@ -269,7 +269,7 @@ def start_game(TIME, level):
                     if event.key == pygame.K_SPACE:
                         if ready_vistrel_tank1 and tank1.hp > 0:
                             Bullet(tank1.x, tank1.y, bullet_dx_tank1, bullet_dy_tank1, 1)
-                            pygame.mixer.music.load('data/zvuk_shoot (mp3cut.net).mp3')
+                            pygame.mixer.music.load('../data/zvuk_shoot (mp3cut.net).mp3')
                             pygame.mixer.music.play()
                             pygame.time.set_timer(EVENT_PERESAR_TANK1, time_peresaryadky)
                             ready_vistrel_tank1 = False
@@ -299,7 +299,7 @@ def start_game(TIME, level):
                     if event.key == pygame.K_RETURN:
                         if ready_vistrel_tank2 and tank2.hp > 0:
                             Bullet(tank2.x, tank2.y, bullet_dx_tank2, bullet_dy_tank2, 2)
-                            pygame.mixer.music.load('data/zvuk_shoot (mp3cut.net).mp3')
+                            pygame.mixer.music.load('../data/zvuk_shoot (mp3cut.net).mp3')
                             pygame.mixer.music.play()
                             pygame.time.set_timer(EVENT_PERESAR_TANK2, time_peresaryadky)
                             ready_vistrel_tank2 = False

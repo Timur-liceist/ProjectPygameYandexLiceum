@@ -1,13 +1,19 @@
 import pygame
-from background import Background
-from variables_for_menu import all_sprites, screen, color_before, color_after, WIDTH, HEIGHT
-from button import Button
-from main import start_game
+from scripts.background import Background
+from scripts.variables_for_menu import all_sprites, screen, color_before, color_after, WIDTH, HEIGHT
+from scripts.button import Button
+from scripts.main import start_game
 import pygame_gui
+import sqlite3
 from data.levels import level
 fps = 60
 
 running = True
+
+con = sqlite3.connect("data/levels.db")
+cur = con.cursor()
+result = list(map(lambda x: x[0], cur.execute(f"""SELECT name FROM levels""").fetchall()))
+con.close()
 background = Background()
 # 250
 # 320
@@ -26,8 +32,8 @@ level_for_start_game = "Три стены"
 combobox = pygame_gui.elements.UIDropDownMenu(
     manager=manager,
     relative_rect=pygame.Rect((380, 250), (250, 60)),
-    options_list=list(level.keys()),
-    starting_option=list(level.keys())[0],
+    options_list=result,
+    starting_option=result[0],
 )
 
 button_time_2.set_color(color_after)

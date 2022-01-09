@@ -1,7 +1,7 @@
 import pygame
 
-from functions import load_image
-from variables import cell_size, all_sprites, blocks_breaking, blocks_not_breaking
+from scripts.functions import load_image
+from scripts.variables import cell_size, all_sprites, blocks_breaking, blocks_not_breaking
 
 
 class Block(pygame.sprite.Sprite):

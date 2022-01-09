@@ -1,5 +1,5 @@
 import pygame
-from variables_for_menu import all_sprites
+from scripts.variables_for_menu import all_sprites
 pygame.init()
 class Button(pygame.sprite.Sprite):
     def __init__(self, text, x, y, width, height, color, name_button, size_text):

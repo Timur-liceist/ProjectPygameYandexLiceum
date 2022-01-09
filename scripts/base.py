@@ -1,6 +1,6 @@
-from functions import load_image
+from scripts.functions import load_image
 import pygame
-from variables import all_sprites, HP_BASE, cell_size
+from scripts.variables import all_sprites, HP_BASE, cell_size
 class Base(pygame.sprite.Sprite):
     image_of_base = [load_image("base1.png", cell_size, cell_size), load_image("base2.png", cell_size, cell_size)]
 

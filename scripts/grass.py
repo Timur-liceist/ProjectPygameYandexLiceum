@@ -1,6 +1,6 @@
 import pygame
-from functions import load_image
-from variables import cell_size, all_sprites
+from scripts.functions import load_image
+from scripts.variables import cell_size, all_sprites
 class Grass(pygame.sprite.Sprite):
     image_of_grass = load_image("grass.jpg", cell_size, cell_size)
 

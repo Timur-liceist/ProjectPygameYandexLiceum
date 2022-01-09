@@ -1,5 +1,5 @@
 import pygame
-from variables import screen
+from scripts.variables import screen
 class Score:
 
     def __init__(self, x, y, color):
